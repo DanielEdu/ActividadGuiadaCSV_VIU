@@ -9,7 +9,7 @@ import csv
 import json
 import pymongo
 import urllib
-import dicttoxml
+import dicttoxml 
 from xml.dom.minidom import parseString
 import xml.etree.ElementTree as ET
 
@@ -25,7 +25,7 @@ dbStringConnection = "mongodb+srv://daniel:root@pymongodb-dhkxn.mongodb.net/test
 dbName = 'cars_db_json'
 dbCollection = 'cars'
 
-#converti de csv a Json
+#From csv to Json
 def createJsonFromCsv():
     csvfile = open(csvFileName, 'r')
     jsonfile = open(jsonFileName, 'w')
@@ -39,19 +39,25 @@ def createJsonFromCsv():
 
     js = json.dumps(csv_rows, indent=2)
     jsonfile.write(js)
+    print('done')
 
 
 #read Json and writw into mongodb
-def readJson():
+def readJson(jsonFile):
+    with open(jsonFile) as j_file:  
+        data = json.load(j_file)
+    
+    return data
+
+
+#insert into MongoDb  
+def insertIntoMongo(data):
     client = pymongo.MongoClient(dbStringConnection)
     db = client[dbName]
     cars = db[dbCollection]
     cars.drop()
-
-    with open(jsonFileName) as json_file:  
-        data = json.load(json_file)
-    
     cars.insert_many(data)
+    print('done')
 
 
 #busqueda en Mongodb
@@ -59,12 +65,18 @@ def queryCarModel():
     client = pymongo.MongoClient(dbStringConnection)
     db = client[dbName]
     cars = db[dbCollection]
+    json_rows=[]
 
     for car in cars.find({}, { "_id": 0, "Model": 1, "Horsepower": 1, "Accelerate":1 }).sort("Horsepower",1):
-        print(car)
+        json_rows.append(car)
+
+    js = json.dumps(json_rows, indent=2)
+    jsonfile = open(jsonFileName, 'w')
+    jsonfile.write(js)
+    print('done')
         
 
-#convertir de Json a XML, save_file .xml
+#From Json to XML, save_file .xml
 def jsonToXml():
     with open(jsonFileName) as json_file:  
         data = json.load(json_file)  
@@ -80,6 +92,7 @@ def jsonToXml():
 
 if __name__ == "__main__":
     #createJsonFromCsv()
-    #readJson()
+    #data = readJson(jsonFileName)
+    #insertIntoMongo(data)
     #queryCarModel()
     jsonToXml()

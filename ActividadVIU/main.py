@@ -30,10 +30,11 @@ def csvReadAndInsertIntoMongoDB():
     
     with open(csvFileName) as csvfile:
         reader = csv.DictReader(csvfile)
-        for row in reader:
-            print (row)
+        #for row in reader:
+            #print (row)
             # print(row['Model'], row['Year'])
-            cars.insert_one(row)
+        
+        cars.insert_many(reader)
 
 
 def readCarsModels():
@@ -61,8 +62,8 @@ def queryCarModel(carModel):
 
 
 def main():
-    simpleCsvRead()
-    #csvReadAndInsertIntoMongoDB()    
+    #simpleCsvRead()
+    csvReadAndInsertIntoMongoDB()    
     #readCarsModels()
     #queryCarModel('ford mustang')
 
